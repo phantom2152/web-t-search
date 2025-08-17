@@ -22,72 +22,13 @@ const Layout: FC = (props) => {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>GitHub User Search</title>
-        <style>{`
-          body { 
-            font-family: system-ui, sans-serif; 
-            max-width: 800px; 
-            margin: 0 auto; 
-            padding: 20px; 
-            line-height: 1.6;
-          }
-          .user-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-          }
-          .avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin-right: 20px;
-          }
-          .user-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-          }
-          .stats {
-            display: flex;
-            gap: 20px;
-            margin: 15px 0;
-          }
-          .stat {
-            text-align: center;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 5px;
-            min-width: 80px;
-          }
-          .search-form {
-            margin: 20px 0;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-          }
-          input[type="text"] {
-            padding: 8px 12px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-right: 10px;
-            width: 200px;
-          }
-          button {
-            padding: 8px 16px;
-            font-size: 16px;
-            background: #0969da;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-          }
-          button:hover {
-            background: #0860ca;
-          }
-        `}</style>
+        <script src="https://cdn.tailwindcss.com"></script>
       </head>
-      <body>{props.children}</body>
+      <body class="bg-gray-50 min-h-screen">
+        <div class="max-w-4xl mx-auto py-8 px-4">
+          {props.children}
+        </div>
+      </body>
     </html>
   )
 }
@@ -95,29 +36,59 @@ const Layout: FC = (props) => {
 export const HomePage: FC = () => {
   return (
     <Layout>
-      <h1>GitHub User Search</h1>
-      <p>Enter a GitHub username to see their profile information (fetched server-side)</p>
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">
+          GitHub User Search
+        </h1>
+        <p class="text-lg text-gray-600 mb-8">
+          Enter a GitHub username to see their profile information (fetched server-side)
+        </p>
+      </div>
       
-      <div class="search-form">
-  <form>
-    <input 
-      type="text" 
-      id="username" 
-      placeholder="Enter GitHub username"
-      required 
-    />
-    <button type="button" onclick="window.location.href='/user/'+document.getElementById('username').value">
-      Search User
-    </button>
-  </form>
-</div>
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <form>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <input 
+              type="text" 
+              id="username" 
+              placeholder="Enter GitHub username"
+              class="flex-1 px-4 py-3 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              required 
+            />
+            <button 
+              type="button" 
+              class="px-8 py-3 bg-blue-600 text-white text-lg font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+              onclick="window.location.href='/user/'+document.getElementById('username').value"
+            >
+              Search User
+            </button>
+          </div>
+        </form>
+      </div>
       
-      <p><strong>Try these users:</strong></p>
-      <ul>
-        <li><a href="/user/torvalds">torvalds</a></li>
-        <li><a href="/user/gaearon">gaearon</a></li>
-        <li><a href="/user/addyosmani">addyosmani</a></li>
-      </ul>
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Try these users:</h2>
+        <div class="flex flex-wrap gap-3">
+          <a 
+            href="/user/torvalds" 
+            class="inline-block px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 hover:text-gray-900 transition-colors"
+          >
+            torvalds
+          </a>
+          <a 
+            href="/user/gaearon" 
+            class="inline-block px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 hover:text-gray-900 transition-colors"
+          >
+            gaearon
+          </a>
+          <a 
+            href="/user/addyosmani" 
+            class="inline-block px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 hover:text-gray-900 transition-colors"
+          >
+            addyosmani
+          </a>
+        </div>
+      </div>
     </Layout>
   )
 }
@@ -127,61 +98,92 @@ export const UserPage: FC<{ user: GitHubUser }> = ({ user }) => {
   
   return (
     <Layout>
-      <h1>GitHub User Profile</h1>
-      <a href="/">← Back to search</a>
+      <div class="mb-6">
+        <a 
+          href="/" 
+          class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors"
+        >
+          ← Back to search
+        </a>
+      </div>
       
-      <div class="user-card">
-        <div class="user-header">
-          <img 
-            src={user.avatar_url} 
-            alt={`${user.login}'s avatar`} 
-            class="avatar" 
-          />
-          <div>
-            <h2>{user.name || user.login}</h2>
-            <p><strong>@{user.login}</strong></p>
-            {user.bio && <p><em>{user.bio}</em></p>}
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="p-6">
+          <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-6">
+            <img 
+              src={user.avatar_url} 
+              alt={`${user.login}'s avatar`} 
+              class="w-24 h-24 rounded-full border-4 border-gray-200" 
+            />
+            <div class="text-center sm:text-left">
+              <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                {user.name || user.login}
+              </h1>
+              <p class="text-xl text-gray-600 mb-3">@{user.login}</p>
+              {user.bio && (
+                <p class="text-gray-700 italic max-w-2xl">{user.bio}</p>
+              )}
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="text-center p-4 bg-gray-50 rounded-lg">
+              <div class="text-2xl font-bold text-gray-900">{user.public_repos}</div>
+              <div class="text-sm text-gray-600">Repositories</div>
+            </div>
+            <div class="text-center p-4 bg-gray-50 rounded-lg">
+              <div class="text-2xl font-bold text-gray-900">{user.followers}</div>
+              <div class="text-sm text-gray-600">Followers</div>
+            </div>
+            <div class="text-center p-4 bg-gray-50 rounded-lg">
+              <div class="text-2xl font-bold text-gray-900">{user.following}</div>
+              <div class="text-sm text-gray-600">Following</div>
+            </div>
+          </div>
+          
+          <div class="space-y-3 mb-6">
+            {user.company && (
+              <div class="flex items-center text-gray-700">
+                <span class="font-semibold w-20">Company:</span>
+                <span>{user.company}</span>
+              </div>
+            )}
+            {user.location && (
+              <div class="flex items-center text-gray-700">
+                <span class="font-semibold w-20">Location:</span>
+                <span>{user.location}</span>
+              </div>
+            )}
+            {user.blog && (
+              <div class="flex items-center text-gray-700">
+                <span class="font-semibold w-20">Website:</span>
+                <a 
+                  href={user.blog} 
+                  target="_blank" 
+                  rel="noopener"
+                  class="text-blue-600 hover:text-blue-800 hover:underline"
+                >
+                  {user.blog}
+                </a>
+              </div>
+            )}
+            <div class="flex items-center text-gray-700">
+              <span class="font-semibold w-20">Joined:</span>
+              <span>{joinDate}</span>
+            </div>
+          </div>
+          
+          <div class="pt-4 border-t border-gray-200">
+            <a 
+              href={`https://github.com/${user.login}`} 
+              target="_blank" 
+              rel="noopener"
+              class="inline-flex items-center px-6 py-3 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              View on GitHub →
+            </a>
           </div>
         </div>
-        
-        <div class="stats">
-          <div class="stat">
-            <strong>{user.public_repos}</strong>
-            <br />Repos
-          </div>
-          <div class="stat">
-            <strong>{user.followers}</strong>
-            <br />Followers
-          </div>
-          <div class="stat">
-            <strong>{user.following}</strong>
-            <br />Following
-          </div>
-        </div>
-        
-        <div>
-          {user.company && <p><strong>Company:</strong> {user.company}</p>}
-          {user.location && <p><strong>Location:</strong> {user.location}</p>}
-          {user.blog && (
-            <p>
-              <strong>Website:</strong> 
-              <a href={user.blog} target="_blank" rel="noopener">
-                {user.blog}
-              </a>
-            </p>
-          )}
-          <p><strong>Joined:</strong> {joinDate}</p>
-        </div>
-        
-        <p>
-          <a 
-            href={`https://github.com/${user.login}`} 
-            target="_blank" 
-            rel="noopener"
-          >
-            View on GitHub →
-          </a>
-        </p>
       </div>
     </Layout>
   )
