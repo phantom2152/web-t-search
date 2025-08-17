@@ -1,8 +1,13 @@
 import {Hono} from "hono"
+import { serveStatic } from "hono/bun"
 import { HomePage,UserPage, type GitHubUser } from "./components/Layout"
 
 const app = new Hono()
 
+
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/static/*', serveStatic({ root: './public' }))
+}
 
 
 app.get('/', (c) => {
