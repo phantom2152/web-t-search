@@ -1,5 +1,5 @@
 import {Hono} from "hono"
-import { HomePage,UserPage, type GitHubUser } from "./components/Layout"
+import { TorrentSearchPage } from "./components/TorrentSearchPage"
 
 const app = new Hono()
 
@@ -11,34 +11,46 @@ if (process.env.NODE_ENV !== 'production') {
 
 
 app.get('/', (c) => {
-  return c.html(<HomePage />)
+  return c.html(<TorrentSearchPage />)
 })
 
-app.get("/user/:username",async(c)=>{
-  const username = c.req.param("username")
 
+app.get('/api/providers', async (c) => {
   try {
-    const response = await fetch(`https://api.github.com/users/${username}`)
-
-    if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.status}`)
-    }
-
-
-    const userData = await response.json()
-
-
-    return c.html(<UserPage user={userData as GitHubUser} />)
-
-
+    const TorrentSearchApi = require('torrent-search-api')
+    const providers = TorrentSearchApi.getProviders()
+    
+    // Filter to show only public providers
+    const publicProviders = providers.filter((provider: any) => provider.public === true)
+    
+    return c.json({
+      success: true,
+      providers: publicProviders
+    })
   } catch (error:any) {
-    return c.html(
-      <div>
-        <h1>Error</h1>
-        <p>Could not fetch user data: {error.message}</p>
-        <a href="/">Go back home</a>
-      </div>
-    )
+    return c.json({
+      success: false,
+      error: error.message
+    }, 500)
+  }
+})
+
+
+app.post('/api/search', async (c) => {
+  try {
+    const { query, provider, category, limit } = await c.req.json()
+    
+    // TODO: Implement actual search
+    return c.json({
+      success: true,
+      message: `Would search for "${query}" in ${category} on ${provider} (limit: ${limit})`,
+      // results: [] // Will contain actual results later
+    })
+  } catch (error:any) {
+    return c.json({
+      success: false,
+      error: error.message
+    }, 500)
   }
 })
 
