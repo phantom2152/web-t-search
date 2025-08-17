@@ -22,7 +22,7 @@ const Layout: FC = (props) => {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>GitHub User Search</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="/public/output.css" rel="stylesheet" />
       </head>
       <body class="bg-gray-50 min-h-screen">
         <div class="max-w-4xl mx-auto py-8 px-4">
@@ -57,7 +57,7 @@ export const HomePage: FC = () => {
             />
             <button 
               type="button" 
-              class="px-8 py-3 bg-blue-600 text-white text-lg font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+              class="px-8 py-3 bg-red-600 text-white text-lg font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
               onclick="window.location.href='/user/'+document.getElementById('username').value"
             >
               Search User

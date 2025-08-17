@@ -3,8 +3,15 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "build:css": "bunx tailwindcss -i ./src/input.css -o ./public/output.css --minify",
+    "dev:css": "bunx tailwindcss -i ./src/input.css -o ./public/output.css --watch",
+    "dev": "bun run build:css & bun run --hot index.tsx",
+    "build": "bun run build:css"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "tailwindcss": "^3.4.0"
   },
   "peerDependencies": {
     "typescript": "^5"

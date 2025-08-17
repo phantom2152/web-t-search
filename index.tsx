@@ -1,7 +1,10 @@
 import {Hono} from "hono"
+import { serveStatic } from 'hono/bun'
 import { HomePage,UserPage, type GitHubUser } from "./components/Layout"
 
 const app = new Hono()
+
+app.use('/public/*', serveStatic({ root: './'}))
 
 app.get('/', (c) => {
   return c.html(<HomePage />)
