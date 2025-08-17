@@ -1,10 +1,10 @@
 import {Hono} from "hono"
-import { serveStatic } from 'hono/bun'
+import { serveStatic } from 'hono/cloudflare-workers'
 import { HomePage,UserPage, type GitHubUser } from "./components/Layout"
 
 const app = new Hono()
 
-app.use('/public/*', serveStatic({ root: './'}))
+app.use('/public/*', serveStatic({ root: './', manifest: {} }))
 
 app.get('/', (c) => {
   return c.html(<HomePage />)
