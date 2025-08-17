@@ -22,7 +22,7 @@ const Layout: FC = (props) => {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>GitHub User Search</title>
-        <link href="/public/output.css" rel="stylesheet" />
+        <link href="/static/style.css" rel="stylesheet" />
       </head>
       <body class="bg-gray-50 min-h-screen">
         <div class="max-w-4xl mx-auto py-8 px-4">

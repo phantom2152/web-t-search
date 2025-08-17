@@ -3,6 +3,6 @@
   "main": "index.tsx",
   "compatibility_date": "2025-08-17",
   "assets": {
-    "directory": "./public"
+    "directory": "public"
   }
 }
