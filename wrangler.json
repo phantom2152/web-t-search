@@ -1,5 +1,5 @@
 {
   "name": "web-t-search",
-  "main": "index.ts",
+  "main": "index.tsx",
   "compatibility_date": "2025-08-17"
 }
