@@ -2,6 +2,7 @@
   "name": "t-search",
   "main": "index.tsx",
   "compatibility_date": "2025-08-17",
+  "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "public"
   }
