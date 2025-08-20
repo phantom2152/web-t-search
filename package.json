@@ -3,20 +3,10 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
-  "scripts": {
-    "build:css": "bunx tailwindcss -i ./src/input.css -o ./public/static/style.css --minify",
-    "dev": "bun run build:css & bun run index.tsx",
-    "build": "bun run build:css"
-  },
   "devDependencies": {
-    "@types/bun": "latest",
-    "tailwindcss": "^3.4.0"
+    "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
-  },
-  "dependencies": {
-    "hono": "^4.9.2",
-    "torrent-search-api": "^2.1.4"
   }
 }
