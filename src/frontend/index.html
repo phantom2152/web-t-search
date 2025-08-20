@@ -167,6 +167,58 @@
     </div>
 
     <script>
+      // Function to copy magnet link and show toast
+      async function copyMagnet(magnet, index) {
+        try {
+          await navigator.clipboard.writeText(magnet);
+          
+          // Update button text temporarily
+          const copyText = document.getElementById(`copy-text-${index}`);
+          const originalText = copyText.textContent;
+          copyText.textContent = 'Copied!';
+          
+          // Create and show toast
+          const toast = document.createElement('div');
+          toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-y-0 opacity-100 z-50';
+          toast.innerHTML = `
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Magnet link copied to clipboard!</span>
+            </div>
+          `;
+          document.body.appendChild(toast);
+          
+          // Reset button text and remove toast after 2 seconds
+          setTimeout(() => {
+            copyText.textContent = originalText;
+            toast.classList.add('translate-y-2', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+          // Show error toast
+          const toast = document.createElement('div');
+          toast.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-y-0 opacity-100 z-50';
+          toast.innerHTML = `
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+              <span>Failed to copy magnet link</span>
+            </div>
+          `;
+          document.body.appendChild(toast);
+          
+          // Remove error toast after 2 seconds
+          setTimeout(() => {
+            toast.classList.add('translate-y-2', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+          }, 2000);
+        }
+      }
+
       class MovieSearch {
         constructor() {
           this.currentPage = 1;
