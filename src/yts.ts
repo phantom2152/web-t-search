@@ -1,32 +1,37 @@
-import axios from 'axios';
 import type { YTSSearchResponse, YTSMovie, YTSTorrent } from '../type';
 
-/**
- * Build a magnet link from an info hash
- */
 function buildMagnet(infoHash: string): string {
   return `magnet:?xt=urn:btih:${infoHash}&tr=udp://tracker.coppersurfer.tk:6969/announce&tr=udp://9.rarbg.to:2920/announce&tr=udp://tracker.opentrackr.org:1337&tr=udp://tracker.internetwarriors.net:1337/announce&tr=udp://tracker.leechers-paradise.org:6969/announce&tr=udp://tracker.pirateparty.gr:6969/announce&tr=udp://tracker.cyberia.is:6969/announce`;
 }
 
-/**
- * Encode an image to base64
- */
+
 const base64EncodeImage = async (imageUrl: string): Promise<string> => {
   try {
-    const { data, headers } = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-    const image = Buffer.from(data, 'binary').toString('base64');
-    return `data:${headers['content-type'].toLowerCase()};base64,${image}`;
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.status}`);
+    }
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    
+    const uint8Array = new Uint8Array(arrayBuffer);
+    let binary = '';
+    const length = uint8Array.length; 
+    for (let i = 0; i < length; i++) {
+      binary += String.fromCharCode(uint8Array[i]!);
+    }
+    const base64 = btoa(binary);
+    
+    return `data:${contentType.toLowerCase()};base64,${base64}`;
   } catch (error) {
     console.error('Error encoding image:', error);
-    return ''; // Return empty string on error
+    return ''; 
   }
 };
 
-/**
- * Search for movies on YTS
- */
-export async function search(query: string, cimage: boolean = false): Promise<YTSSearchResponse> {
 
+export async function search(query: string, cimage: boolean = false): Promise<YTSSearchResponse> {
   const finalObj: YTSSearchResponse = {
     status: "ok",
     movie_count: 0,
@@ -37,14 +42,19 @@ export async function search(query: string, cimage: boolean = false): Promise<YT
   const url = `https://yts.am/api/v2/list_movies.json?query_term=${encodeURIComponent(query)}&sort_by=download_count`;
 
   try {
-    const { data } = await axios.get(url);
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`YTS API request failed: ${response.status}`);
+    }
+    
+    const data: any = await response.json(); 
     const { movie_count, movies } = data.data;
     finalObj.movie_count = movie_count;
 
     if (movie_count === 0) return finalObj;
 
     const moviePromises = movies.map(async (movie: any) => {
-      // Encode movie cover image if requested
+    
       let coverImage = '';
       if (cimage && movie.large_cover_image) {
         coverImage = await base64EncodeImage(movie.large_cover_image);
@@ -84,7 +94,7 @@ export async function search(query: string, cimage: boolean = false): Promise<YT
     return finalObj;
   } catch (error) {
     finalObj.status = "error";
-    finalObj.error = (error as Error).message;
+    finalObj.error = error instanceof Error ? error.message : 'Unknown error occurred';
     return finalObj;
   }
 }
