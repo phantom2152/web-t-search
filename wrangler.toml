@@ -9,3 +9,7 @@ directory = "./dist"
 
 [observability]
 enabled = true
+
+
+[build]
+command = "bun run build"
