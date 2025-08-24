@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import search from "./yts";
+import search from "./providers/yts";
 
 type Bindings = {
   ASSETS: {

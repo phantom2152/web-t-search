@@ -94,6 +94,58 @@ export interface Torrent1337xSearchResult {
     data: YTSMovie[];
     error?: string;
   }
+
+export interface TPBTorrent {
+  id: string;
+  name: string;
+  info_hash: string;
+  leechers: string;
+  seeders: string;
+  num_files: string;
+  size: string;
+  username: string;
+  added: string;
+  status: string;
+  category: string;
+  imdb: string;
+}
+
+export interface TPBSearchResult {
+  provider: string;
+  id: string;
+  title: string;
+  time: string;
+  seeds: number;
+  peers: number;
+  size: string;
+  magnet: string;
+  numFiles: number;
+  status: string;
+  category: string;
+  imdb: string;
+}
+
+export interface TPBSearchResponse {
+  status: string;
+  query: string;
+  data: TPBSearchResult[];
+  error?: string;
+}
+
+export interface TPBTorrentDetails {
+  id: string;
+  name: string;
+  info_hash: string;
+  leechers: string;
+  seeders: string;
+  num_files: string;
+  size: string;
+  username: string;
+  added: string;
+  status: string;
+  category: string;
+  imdb: string;
+}
   
   // Cache service type
   export interface CacheService {
