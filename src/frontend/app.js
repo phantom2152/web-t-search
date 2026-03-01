@@ -2,52 +2,58 @@
 async function copyMagnet(magnet, index) {
   try {
     await navigator.clipboard.writeText(magnet);
-    
-    // Update button text temporarily
+
     const copyText = document.getElementById(`copy-text-${index}`);
-    const originalText = copyText.textContent;
-    copyText.textContent = 'Copied!';
-    
-    // Create and show toast
-    const toast = document.createElement('div');
-    toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-y-0 opacity-100 z-50';
-    toast.innerHTML = `
-      <div class="flex items-center gap-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-        </svg>
-        <span>Magnet link copied to clipboard!</span>
-      </div>
-    `;
-    document.body.appendChild(toast);
-    
-    // Reset button text and remove toast after 2 seconds
-    setTimeout(() => {
-      copyText.textContent = originalText;
-      toast.classList.add('translate-y-2', 'opacity-0');
-      setTimeout(() => toast.remove(), 300);
-    }, 2000);
+    if (copyText) {
+      const originalText = copyText.textContent;
+      copyText.textContent = 'Copied!';
+      setTimeout(() => { copyText.textContent = originalText; }, 2000);
+    }
+
+    showToast('Magnet link copied!', 'success');
   } catch (err) {
     console.error('Failed to copy:', err);
-    // Show error toast
-    const toast = document.createElement('div');
-    toast.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-y-0 opacity-100 z-50';
-    toast.innerHTML = `
-      <div class="flex items-center gap-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-        <span>Failed to copy magnet link</span>
-      </div>
-    `;
-    document.body.appendChild(toast);
-    
-    // Remove error toast after 2 seconds
-    setTimeout(() => {
-      toast.classList.add('translate-y-2', 'opacity-0');
-      setTimeout(() => toast.remove(), 300);
-    }, 2000);
+    showToast('Failed to copy magnet link', 'error');
   }
+}
+
+function showToast(message, type = 'success') {
+  const existing = document.querySelectorAll('.cine-toast');
+  existing.forEach(t => t.remove());
+
+  const toast = document.createElement('div');
+  const bg = type === 'success' ? '#22c55e' : '#ef4444';
+  const icon = type === 'success'
+    ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>`
+    : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>`;
+
+  toast.className = 'cine-toast';
+  toast.style.cssText = `
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    display: flex; align-items: center; gap: 8px;
+    background: ${bg}; color: white;
+    padding: 12px 18px; border-radius: 10px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    opacity: 0; transform: translateY(8px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  `;
+  toast.innerHTML = `
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">${icon}</svg>
+    ${message}
+  `;
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+  });
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(8px)';
+    setTimeout(() => toast.remove(), 200);
+  }, 2200);
 }
 
 class CineSearch {
@@ -62,7 +68,6 @@ class CineSearch {
 
   init() {
     this.bindEvents();
-    this.addInputEffects();
     this.setupProviderToggle();
   }
 
@@ -72,22 +77,15 @@ class CineSearch {
       this.search();
     });
 
-    document.getElementById('prevBtn').addEventListener('click', () => {
-      this.previousPage();
-    });
-
-    document.getElementById('nextBtn').addEventListener('click', () => {
-      this.nextPage();
-    });
-
-    document.getElementById('closeModal').addEventListener('click', () => {
-      this.closeModal();
-    });
-
+    document.getElementById('prevBtn').addEventListener('click', () => this.previousPage());
+    document.getElementById('nextBtn').addEventListener('click', () => this.nextPage());
+    document.getElementById('closeModal').addEventListener('click', () => this.closeModal());
     document.getElementById('movieModal').addEventListener('click', (e) => {
-      if (e.target.id === 'movieModal') {
-        this.closeModal();
-      }
+      if (e.target.id === 'movieModal') this.closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') this.closeModal();
     });
   }
 
@@ -99,28 +97,14 @@ class CineSearch {
     providerRadios.forEach(radio => {
       radio.addEventListener('change', (e) => {
         this.currentProvider = e.target.value;
-        
         if (e.target.value === 'tpb') {
           tpbOptions.classList.remove('hidden');
-          queryInput.placeholder = 'Search for torrents...';
+          queryInput.placeholder = 'Search for torrents…';
         } else {
           tpbOptions.classList.add('hidden');
-          queryInput.placeholder = 'Search for movies...';
+          queryInput.placeholder = 'Search for a movie…';
         }
       });
-    });
-  }
-
-  addInputEffects() {
-    const input = document.getElementById('query');
-    const glow = document.getElementById('searchGlow');
-    
-    input.addEventListener('focus', () => {
-      glow.style.opacity = '1';
-    });
-    
-    input.addEventListener('blur', () => {
-      glow.style.opacity = '0';
     });
   }
 
@@ -134,28 +118,27 @@ class CineSearch {
 
     try {
       let response;
-      
       if (this.currentProvider === 'yts') {
         response = await fetch(`/api/search/yts?query=${encodeURIComponent(query)}`);
       } else {
         const category = document.getElementById('category').value;
         const sortBy = document.getElementById('sortBy').value;
         const order = document.getElementById('order').value;
-        
+
         let url = `/api/search/tpb?query=${encodeURIComponent(query)}`;
         if (category !== 'All') url += `&category=${category}`;
         if (sortBy) url += `&sort=${sortBy}`;
         if (order) url += `&order=${order}`;
-        
+
         response = await fetch(url);
       }
-      
+
       const data = await response.json();
       this.hideLoading();
       this.handleResults(data);
     } catch (error) {
       this.hideLoading();
-      this.showError('Failed to search. Please try again.');
+      this.showError('Failed to connect. Please try again.');
     }
   }
 
@@ -182,7 +165,7 @@ class CineSearch {
     }
 
     const resultCount = this.currentProvider === 'yts' ? data.movie_count : data.data.length;
-    
+
     if (resultCount === 0) {
       this.showNoResults();
       return;
@@ -213,81 +196,121 @@ class CineSearch {
 
   showResultsInfo(count) {
     const itemType = this.currentProvider === 'yts' ? 'movie' : 'result';
-    document.getElementById('resultCount').textContent = 
-      `Found ${count} ${itemType}${count !== 1 ? 's' : ''} for "${this.currentQuery}"`;
+    document.getElementById('resultCount').textContent =
+      `${count} ${itemType}${count !== 1 ? 's' : ''} for "${this.currentQuery}"`;
     document.getElementById('resultsInfo').classList.remove('hidden');
   }
 
   renderPage() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    const items = this.allResults.slice(startIndex, endIndex);
-
+    const items = this.allResults.slice(startIndex, startIndex + this.itemsPerPage);
     const resultsDiv = document.getElementById('results');
     resultsDiv.innerHTML = '';
 
     items.forEach((item, index) => {
-      const card = this.currentProvider === 'yts' 
+      const card = this.currentProvider === 'yts'
         ? this.createYTSCard(item, startIndex + index)
         : this.createTPBCard(item, startIndex + index);
-      resultsDiv.appendChild(card);
-    });
 
-    // Animate cards
-    setTimeout(() => {
-      document.querySelectorAll('.movie-card').forEach((card, index) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(16px)';
+      resultsDiv.appendChild(card);
+
+      // Staggered entrance
+      requestAnimationFrame(() => {
         setTimeout(() => {
+          card.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
           card.style.opacity = '1';
           card.style.transform = 'translateY(0)';
-        }, index * 100);
+        }, index * 60);
       });
-    }, 50);
+    });
   }
 
   createYTSCard(movie, index) {
     const card = document.createElement('div');
-    card.className = 'movie-card glass-effect rounded-xl overflow-hidden transform transition-all duration-500 hover:scale-105 cursor-pointer opacity-0 translate-y-8';
+    card.className = 'movie-card cursor-pointer';
+    card.style.cssText = `
+      background: #18181c;
+      border: 1px solid #2a2a30;
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    `;
 
-    const imageUrl = movie.cover_image || 'https://via.placeholder.com/300x450/374151/9CA3AF?text=No+Image';
-    const year = movie.year || 'Unknown';
-    const description = movie.description ? 
-      (movie.description.length > 100 ? movie.description.substring(0, 100) + '...' : movie.description) : 
-      'No description available';
+    const imageUrl = movie.cover_image || '';
+    const year = movie.year ? ` (${movie.year})` : '';
+    const desc = movie.description
+      ? (movie.description.length > 90 ? movie.description.substring(0, 90) + '…' : movie.description)
+      : 'No description available.';
+
+    const qualities = (movie.torrents || []).slice(0, 4).map(t =>
+      `<span style="
+        background: rgba(232,197,109,0.12);
+        color: #e8c56d;
+        border: 1px solid rgba(232,197,109,0.25);
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 500;
+        white-space: nowrap;
+      ">${t.quality}</span>`
+    ).join('');
 
     card.innerHTML = `
-      <div class="aspect-[2/3] relative overflow-hidden">
-        <img 
-          src="${imageUrl}" 
-          alt="${movie.name}" 
-          class="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-          loading="lazy"
-        />
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-        <div class="absolute bottom-4 left-4 right-4 transform translate-y-4 opacity-0 hover:translate-y-0 hover:opacity-100 transition-all duration-300">
-          <div class="flex items-center gap-2 text-sm">
-            <span class="bg-blue-600 px-2 py-1 rounded text-xs font-semibold">${year}</span>
-            ${movie.language ? `<span class="bg-purple-600 px-2 py-1 rounded text-xs font-semibold">${movie.language}</span>` : ''}
-          </div>
-        </div>
+      <!-- Poster -->
+      <div style="aspect-ratio: 2/3; overflow: hidden; position: relative; background: #111114; flex-shrink: 0;">
+        ${imageUrl
+          ? `<img src="${imageUrl}" alt="${movie.name}" loading="lazy"
+               style="width:100%; height:100%; object-fit:cover; display:block; transition: transform 0.4s ease;"
+               onmouseover="this.style.transform='scale(1.04)'"
+               onmouseout="this.style.transform='scale(1)'"
+             />`
+          : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#6b6b78;font-size:13px;">No Image</div>`
+        }
       </div>
-      <div class="p-6">
-        <h3 class="font-bold text-lg mb-2 line-clamp-2">${movie.name}</h3>
-        <p class="text-gray-400 text-sm mb-4 line-clamp-3">${description}</p>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            ${movie.torrents && movie.torrents.length > 0 ? `
-              <div class="flex gap-1">
-                ${movie.torrents.slice(0, 3).map(torrent => `
-                  <span class="bg-green-600/20 text-green-400 px-2 py-1 rounded text-xs font-medium">
-                    ${torrent.quality}
-                  </span>
-                `).join('')}
-              </div>
-            ` : ''}
+
+      <!-- Info -->
+      <div style="padding: 14px 14px 12px; display: flex; flex-direction: column; flex: 1; gap: 8px;">
+        <!-- Title -->
+        <h3 style="
+          font-family: 'DM Serif Display', serif;
+          font-size: 15px;
+          line-height: 1.3;
+          color: #e8e8ee;
+          margin: 0;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        ">${movie.name}${year}</h3>
+
+        <!-- Description -->
+        <p style="
+          font-size: 12px;
+          line-height: 1.5;
+          color: #6b6b78;
+          margin: 0;
+          flex: 1;
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        ">${desc}</p>
+
+        <!-- Footer: qualities + link -->
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 4px; flex-wrap: wrap;">
+          <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+            ${qualities}
           </div>
-          <button class="text-blue-400 hover:text-blue-300 text-sm font-medium">
-            View Details →
-          </button>
+          <span style="
+            font-size: 12px;
+            color: #e8c56d;
+            white-space: nowrap;
+            flex-shrink: 0;
+            opacity: 0.85;
+          ">Details →</span>
         </div>
       </div>
     `;
@@ -298,36 +321,58 @@ class CineSearch {
 
   createTPBCard(torrent, index) {
     const card = document.createElement('div');
-    card.className = 'movie-card glass-effect rounded-xl overflow-hidden transform transition-all duration-500 hover:scale-105 cursor-pointer opacity-0 translate-y-8';
+    card.className = 'movie-card cursor-pointer';
+    card.style.cssText = `
+      background: #18181c;
+      border: 1px solid #2a2a30;
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    `;
+
+    const seedColor = torrent.seeds > 10 ? '#4ade80' : torrent.seeds > 0 ? '#facc15' : '#f87171';
 
     card.innerHTML = `
-      <div class="p-6">
-        <h3 class="font-bold text-lg mb-2 line-clamp-2">${torrent.title}</h3>
-        <div class="space-y-2 mb-4">
-          <div class="flex items-center justify-between text-sm">
-            <span class="text-gray-400">Size:</span>
-            <span class="text-white">${torrent.size}</span>
-          </div>
-          <div class="flex items-center justify-between text-sm">
-            <span class="text-gray-400">Seeds:</span>
-            <span class="text-green-400">${torrent.seeds}</span>
-          </div>
-          <div class="flex items-center justify-between text-sm">
-            <span class="text-gray-400">Peers:</span>
-            <span class="text-blue-400">${torrent.peers}</span>
-          </div>
-          <div class="flex items-center justify-between text-sm">
-            <span class="text-gray-400">Files:</span>
-            <span class="text-white">${torrent.numFiles}</span>
-          </div>
+      <div style="padding: 16px; display: flex; flex-direction: column; flex: 1; gap: 10px;">
+        <!-- Category badge -->
+        <div>
+          <span style="
+            background: rgba(232,197,109,0.1);
+            color: #e8c56d;
+            border: 1px solid rgba(232,197,109,0.2);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+          ">${torrent.category}</span>
         </div>
-        <div class="flex items-center justify-between">
-          <span class="bg-purple-600/20 text-purple-400 px-2 py-1 rounded text-xs font-medium">
-            ${torrent.category}
-          </span>
-          <button class="text-blue-400 hover:text-blue-300 text-sm font-medium">
-            View Details →
-          </button>
+
+        <!-- Title -->
+        <h3 style="
+          font-family: 'DM Serif Display', serif;
+          font-size: 15px;
+          line-height: 1.35;
+          color: #e8e8ee;
+          margin: 0;
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          flex: 1;
+        ">${torrent.title}</h3>
+
+        <!-- Stats -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 12px;">
+          <div style="color: #6b6b78;">Size: <span style="color: #e8e8ee;">${torrent.size}</span></div>
+          <div style="color: #6b6b78;">Files: <span style="color: #e8e8ee;">${torrent.numFiles}</span></div>
+          <div style="color: #6b6b78;">Seeds: <span style="color: ${seedColor}; font-weight: 600;">${torrent.seeds}</span></div>
+          <div style="color: #6b6b78;">Peers: <span style="color: #93c5fd;">${torrent.peers}</span></div>
+        </div>
+
+        <!-- Footer -->
+        <div style="display: flex; justify-content: flex-end; padding-top: 4px; border-top: 1px solid #2a2a30;">
+          <span style="font-size: 12px; color: #e8c56d; opacity: 0.85;">Details →</span>
         </div>
       </div>
     `;
@@ -336,82 +381,114 @@ class CineSearch {
     return card;
   }
 
+  // ── Modals ───────────────────────────────────────────────
+
+  modalRow(label, value) {
+    if (!value) return '';
+    return `
+      <div style="display:flex; gap:12px; font-size:14px;">
+        <span style="color:#6b6b78; min-width:80px; flex-shrink:0;">${label}</span>
+        <span style="color:#e8e8ee;">${value}</span>
+      </div>
+    `;
+  }
+
   showYTSDetails(movie) {
     const modal = document.getElementById('movieModal');
-    const title = document.getElementById('modalTitle');
-    const content = document.getElementById('modalContent');
+    document.getElementById('modalTitle').textContent = movie.name;
 
-    title.textContent = movie.name;
-
-    const imageUrl = movie.cover_image || 'https://via.placeholder.com/300x450/374151/9CA3AF?text=No+Image';
+    const imageUrl = movie.cover_image || '';
     const torrents = movie.torrents || [];
 
-    content.innerHTML = `
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="md:col-span-1">
-          <img 
-            src="${imageUrl}" 
-            alt="${movie.name}" 
-            class="w-full rounded-xl shadow-2xl"
-          />
+    const torrentRows = torrents.map((t, i) => `
+      <div style="
+        background: #111114;
+        border: 1px solid #2a2a30;
+        border-radius: 10px;
+        padding: 12px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+      ">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <span style="
+            background: rgba(232,197,109,0.12);
+            color: #e8c56d;
+            border: 1px solid rgba(232,197,109,0.25);
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+          ">${t.quality}</span>
+          <span style="font-size:13px; color:#6b6b78;">${t.type || 'Movie'}</span>
+          <span style="font-size:13px; color:#6b6b78;">${t.size || ''}</span>
         </div>
-        <div class="md:col-span-2">
-          <div class="space-y-6">
-            <div>
-              <h4 class="text-xl font-semibold mb-2">Movie Information</h4>
-              <div class="space-y-2">
-                <p><span class="text-gray-400">Year:</span> <span class="text-white">${movie.year || 'Unknown'}</span></p>
-                <p><span class="text-gray-400">Language:</span> <span class="text-white">${movie.language || 'Unknown'}</span></p>
-                ${movie.imdb ? `<p><span class="text-gray-400">IMDB:</span> <a href="https://imdb.com/title/${movie.imdb}" target="_blank" class="text-blue-400 hover:text-blue-300">${movie.imdb}</a></p>` : ''}
-              </div>
-            </div>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <span style="font-size:12px; color:#4ade80;">▲ ${t.seeds} seeds</span>
+          <span style="font-size:12px; color:#93c5fd;">● ${t.peers} peers</span>
+          ${t.upload_date ? `<span style="font-size:12px; color:#6b6b78;">${new Date(t.upload_date).toLocaleDateString()}</span>` : ''}
+          ${t.magnet ? `
+            <button
+              onclick="copyMagnet('${t.magnet.replace(/'/g, "\\'")}', ${i})"
+              id="copy-btn-${i}"
+              style="
+                display: flex; align-items: center; gap: 6px;
+                background: #e8c56d; color: #0d0d0f;
+                border: none; border-radius: 7px;
+                padding: 5px 12px; font-size: 12px; font-weight: 600;
+                cursor: pointer; transition: opacity 0.15s;
+              "
+              onmouseover="this.style.opacity='0.85'"
+              onmouseout="this.style.opacity='1'"
+            >
+              <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+              </svg>
+              <span id="copy-text-${i}">Copy Magnet</span>
+            </button>
+          ` : ''}
+        </div>
+      </div>
+    `).join('');
 
-            ${movie.description ? `
-              <div>
-                <h4 class="text-xl font-semibold mb-2">Synopsis</h4>
-                <p class="text-gray-300 leading-relaxed">${movie.description}</p>
+    document.getElementById('modalContent').innerHTML = `
+      <div style="display:grid; grid-template-columns: 1fr; gap: 24px;">
+        <!-- Top: poster + info -->
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+          ${imageUrl ? `
+            <img src="${imageUrl}" alt="${movie.name}" style="
+              width: 130px; flex-shrink:0;
+              border-radius: 10px;
+              object-fit: cover;
+              aspect-ratio: 2/3;
+              box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            "/>
+          ` : ''}
+          <div style="flex:1; min-width:160px; display:flex; flex-direction:column; gap:10px;">
+            ${this.modalRow('Year', movie.year)}
+            ${this.modalRow('Language', movie.language)}
+            ${movie.imdb ? `
+              <div style="display:flex; gap:12px; font-size:14px;">
+                <span style="color:#6b6b78; min-width:80px; flex-shrink:0;">IMDb</span>
+                <a href="https://imdb.com/title/${movie.imdb}" target="_blank"
+                   style="color:#e8c56d; text-decoration:none;">${movie.imdb}</a>
               </div>
             ` : ''}
-
-            ${torrents.length > 0 ? `
-              <div>
-                <h4 class="text-xl font-semibold mb-4">Available Downloads</h4>
-                <div class="space-y-3">
-                  ${torrents.map((torrent, index) => `
-                    <div class="glass-effect rounded-lg p-4">
-                      <div class="flex items-center justify-between mb-2">
-                        <div class="flex items-center gap-3">
-                          <span class="bg-green-600 px-3 py-1 rounded-full text-sm font-semibold">${torrent.quality}</span>
-                          <span class="text-gray-400 text-sm">${torrent.type || 'Movie'}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                          <span class="text-gray-400 text-sm">${torrent.size || 'Unknown size'}</span>
-                          ${torrent.magnet ? `
-                            <button 
-                              onclick="copyMagnet('${torrent.magnet.replace(/'/g, "\\'")}', ${index})" 
-                              class="copy-magnet-btn flex items-center gap-2 px-3 py-1 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105"
-                              id="copy-btn-${index}"
-                            >
-                              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V19C3 20.11 3.89 21 5 21H11V19H5V3H13V9H21ZM20.5 11.5L23 14L20.5 16.5L19 15L20 14L19 13L20.5 11.5ZM15.5 11.5L17 13L16 14L17 15L15.5 16.5L13 14L15.5 11.5Z"/>
-                              </svg>
-                              <span id="copy-text-${index}">Copy Magnet</span>
-                            </button>
-                          ` : ''}
-                        </div>
-                      </div>
-                      <div class="flex items-center gap-4 text-sm">
-                        <span class="text-green-400">🌱 ${torrent.seeds} seeds</span>
-                        <span class="text-blue-400">👥 ${torrent.peers} peers</span>
-                        ${torrent.upload_date ? `<span class="text-gray-400">📅 ${new Date(torrent.upload_date).toLocaleDateString()}</span>` : ''}
-                      </div>
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
+            ${movie.description ? `
+              <p style="font-size:13px; color:#9ca3af; line-height:1.6; margin:0; margin-top:4px;">${movie.description}</p>
             ` : ''}
           </div>
         </div>
+
+        <!-- Torrents -->
+        ${torrents.length > 0 ? `
+          <div>
+            <h4 style="font-family:'DM Serif Display',serif; font-size:18px; color:#e8e8ee; margin:0 0 12px;">Downloads</h4>
+            <div style="display:flex; flex-direction:column; gap:8px;">${torrentRows}</div>
+          </div>
+        ` : ''}
       </div>
     `;
 
@@ -421,49 +498,63 @@ class CineSearch {
 
   showTPBDetails(torrent) {
     const modal = document.getElementById('movieModal');
-    const title = document.getElementById('modalTitle');
-    const content = document.getElementById('modalContent');
+    document.getElementById('modalTitle').textContent = torrent.title;
 
-    title.textContent = torrent.title;
+    const seedColor = torrent.seeds > 10 ? '#4ade80' : torrent.seeds > 0 ? '#facc15' : '#f87171';
 
-    content.innerHTML = `
-      <div class="space-y-6">
-        <div>
-          <h4 class="text-xl font-semibold mb-4">Torrent Information</h4>
-          <div class="grid md:grid-cols-2 gap-6">
-            <div class="space-y-3">
-              <p><span class="text-gray-400">Size:</span> <span class="text-white">${torrent.size}</span></p>
-              <p><span class="text-gray-400">Seeds:</span> <span class="text-green-400">${torrent.seeds}</span></p>
-              <p><span class="text-gray-400">Peers:</span> <span class="text-blue-400">${torrent.peers}</span></p>
-              <p><span class="text-gray-400">Files:</span> <span class="text-white">${torrent.numFiles}</span></p>
-            </div>
-            <div class="space-y-3">
-              <p><span class="text-gray-400">Category:</span> <span class="text-white">${torrent.category}</span></p>
-              <p><span class="text-gray-400">Status:</span> <span class="text-white">${torrent.status}</span></p>
-              <p><span class="text-gray-400">Uploaded:</span> <span class="text-white">${torrent.time}</span></p>
-              ${torrent.imdb ? `<p><span class="text-gray-400">IMDB:</span> <a href="https://imdb.com/title/${torrent.imdb}" target="_blank" class="text-blue-400 hover:text-blue-300">${torrent.imdb}</a></p>` : ''}
-            </div>
+    document.getElementById('modalContent').innerHTML = `
+      <div style="display:flex; flex-direction:column; gap:20px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          ${this.modalRow('Size', torrent.size)}
+          ${this.modalRow('Category', torrent.category)}
+          <div style="display:flex; gap:12px; font-size:14px;">
+            <span style="color:#6b6b78; min-width:80px; flex-shrink:0;">Seeds</span>
+            <span style="color:${seedColor}; font-weight:600;">${torrent.seeds}</span>
           </div>
+          <div style="display:flex; gap:12px; font-size:14px;">
+            <span style="color:#6b6b78; min-width:80px; flex-shrink:0;">Peers</span>
+            <span style="color:#93c5fd;">${torrent.peers}</span>
+          </div>
+          ${this.modalRow('Files', torrent.numFiles)}
+          ${this.modalRow('Status', torrent.status)}
+          ${this.modalRow('Uploaded', torrent.time)}
+          ${torrent.imdb ? `
+            <div style="display:flex; gap:12px; font-size:14px;">
+              <span style="color:#6b6b78; min-width:80px;">IMDb</span>
+              <a href="https://imdb.com/title/${torrent.imdb}" target="_blank"
+                 style="color:#e8c56d; text-decoration:none;">${torrent.imdb}</a>
+            </div>
+          ` : ''}
         </div>
 
         ${torrent.magnet ? `
-          <div>
-            <h4 class="text-xl font-semibold mb-4">Download</h4>
-            <div class="glass-effect rounded-lg p-4">
-              <div class="flex items-center justify-between">
-                <span class="text-gray-300">Magnet Link</span>
-                <button 
-                  onclick="copyMagnet('${torrent.magnet.replace(/'/g, "\\'")}', 'modal')" 
-                  class="copy-magnet-btn flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105"
-                  id="copy-btn-modal"
-                >
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V19C3 20.11 3.89 21 5 21H11V19H5V3H13V9H21ZM20.5 11.5L23 14L20.5 16.5L19 15L20 14L19 13L20.5 11.5ZM15.5 11.5L17 13L16 14L17 15L15.5 16.5L13 14L15.5 11.5Z"/>
-                  </svg>
-                  <span id="copy-text-modal">Copy Magnet Link</span>
-                </button>
-              </div>
-            </div>
+          <div style="
+            background: #111114;
+            border: 1px solid #2a2a30;
+            border-radius: 10px;
+            padding: 14px;
+            display: flex; align-items: center; justify-content: space-between; gap:12px;
+            flex-wrap: wrap;
+          ">
+            <span style="font-size:14px; color:#6b6b78;">Magnet Link</span>
+            <button
+              onclick="copyMagnet('${torrent.magnet.replace(/'/g, "\\'")}', 'modal')"
+              id="copy-btn-modal"
+              style="
+                display: flex; align-items: center; gap: 6px;
+                background: #e8c56d; color: #0d0d0f;
+                border: none; border-radius: 7px;
+                padding: 7px 14px; font-size: 13px; font-weight: 600;
+                cursor: pointer; transition: opacity 0.15s;
+              "
+              onmouseover="this.style.opacity='0.85'"
+              onmouseout="this.style.opacity='1'"
+            >
+              <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+              </svg>
+              <span id="copy-text-modal">Copy Magnet</span>
+            </button>
           </div>
         ` : ''}
       </div>
@@ -475,12 +566,12 @@ class CineSearch {
 
   closeModal() {
     document.getElementById('movieModal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
+    document.body.style.overflow = '';
   }
 
   updatePagination() {
     const totalPages = Math.ceil(this.allResults.length / this.itemsPerPage);
-    
+
     if (totalPages <= 1) {
       document.getElementById('pagination').classList.add('hidden');
       return;
@@ -488,7 +579,6 @@ class CineSearch {
 
     document.getElementById('pagination').classList.remove('hidden');
     document.getElementById('pageInfo').textContent = `Page ${this.currentPage} of ${totalPages}`;
-    
     document.getElementById('prevBtn').disabled = this.currentPage === 1;
     document.getElementById('nextBtn').disabled = this.currentPage === totalPages;
   }
@@ -513,7 +603,6 @@ class CineSearch {
   }
 }
 
-// Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   new CineSearch();
 });
