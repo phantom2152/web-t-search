@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Background -->
+  <rect width="32" height="32" rx="7" fill="#18181c"/>
+  
+  <!-- Film reel outer ring -->
+  <circle cx="16" cy="16" r="11" fill="none" stroke="#e8c56d" stroke-width="1.5"/>
+  
+  <!-- Film reel center hole -->
+  <circle cx="16" cy="16" r="3" fill="#e8c56d"/>
+  
+  <!-- Reel spokes / sprocket holes (6 evenly spaced) -->
+  <circle cx="16" cy="7.5" r="1.8" fill="#0d0d0f"/>
+  <circle cx="16" cy="24.5" r="1.8" fill="#0d0d0f"/>
+  <circle cx="8.2" cy="11.75" r="1.8" fill="#0d0d0f"/>
+  <circle cx="23.8" cy="11.75" r="1.8" fill="#0d0d0f"/>
+  <circle cx="8.2" cy="20.25" r="1.8" fill="#0d0d0f"/>
+  <circle cx="23.8" cy="20.25" r="1.8" fill="#0d0d0f"/>
+
+  <!-- Inner circle ring -->
+  <circle cx="16" cy="16" r="6" fill="none" stroke="#e8c56d" stroke-width="0.75" stroke-dasharray="2 2"/>
+</svg>
