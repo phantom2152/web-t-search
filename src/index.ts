@@ -1,10 +1,17 @@
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
+import { readFileSync } from "fs";
+import { join } from "path";
 import YTSSearch from "./providers/yts";
 import TPBSearch from "./providers/piratebay";
 import type { TPBCategories } from "./providers/piratebay";
 
 const app = new Hono();
+
+app.get("/", (c) => {
+  const html = readFileSync(join(process.cwd(), "public", "index.html"), "utf-8");
+  return c.html(html);
+});
 
 app.get("/api/search/yts", async (c) => {
   const query = c.req.query("query") || "";
