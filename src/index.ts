@@ -35,6 +35,6 @@ app.get("/api/search/tpb", async (c) => {
 });
 
 // Serve static files from the "public" folder
-app.use("*", serveStatic({ root: "./src/frontend" }));
+app.use("*", serveStatic({ root: "./public" }));
 
 export default app;
