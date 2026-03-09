@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "bun run --hot src/index.ts",
-    "tunnel": "cloudflared tunnel --url http://localhost:3000"
+    "tunnel": "cloudflared tunnel --url http://localhost:3000",
+    "build": "rm -rf dist && mkdir dist && mkdir dist/frontend && bun build src/index.ts --outdir dist --target bun && cp -r src/frontend/* dist/frontend"
   },
   "devDependencies": {
     "@types/bun": "latest"
