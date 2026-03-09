@@ -37,7 +37,4 @@ app.get("/api/search/tpb", async (c) => {
 // Serve static files from the "public" folder
 app.use("*", serveStatic({ root: "./src/frontend" }));
 
-export default {
-  port: process.env.PORT || 3000,
-  fetch: app.fetch,
-};
+export default app;
