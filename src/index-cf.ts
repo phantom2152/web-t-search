@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import YTSSearch from "./providers/yts";
 import TPBSearch from "./providers/piratebay";
+import EZTVSearch from "./providers/eztv";
 import type { TPBCategories } from "./providers/piratebay";
 
 type Bindings = {
@@ -37,6 +38,19 @@ app.get("/api/search/tpb", async (c) => {
     sortBy,
     order 
   }); 
+  return c.json(results);
+});
+
+app.get("/api/search/eztv", async (c) => {
+  const imdbId = c.req.query("imdb_id") || "";
+  if (!imdbId) {
+    return c.json({ status: "error", error: "Missing imdb_id parameter" }, 400);
+  }
+
+  const limit = parseInt(c.req.query("limit") || "30", 10);
+  const page = parseInt(c.req.query("page") || "1", 10);
+
+  const results = await EZTVSearch(imdbId, { limit, page });
   return c.json(results);
 });
 

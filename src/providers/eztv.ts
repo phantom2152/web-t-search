@@ -88,7 +88,6 @@ export async function search(
     }
 
     const data = await response.json() as EZTVSearchResponse;
-    console.log('Raw EZTV API response:', data);
 
     finalObj.query_meta.torrents_count = data.torrents_count ?? 0;
 
