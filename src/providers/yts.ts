@@ -7,6 +7,7 @@ function buildMagnet(infoHash: string): string {
 
 const base64EncodeImage = async (imageUrl: string): Promise<string> => {
   try {
+    console.log(`Fetching image from URL: ${imageUrl}`);
     const response = await fetch(imageUrl);
     if (!response.ok) {
       throw new Error(`Failed to fetch image: ${response.status}`);
@@ -39,7 +40,7 @@ export async function search(query: string, cimage: boolean = false): Promise<YT
     data: []
   };
 
-  const url = `https://yts.am/api/v2/list_movies.json?query_term=${encodeURIComponent(query)}&sort_by=download_count`;
+  const url = `https://movies-api.accel.li/api/v2/list_movies.json?query_term=${encodeURIComponent(query)}&sort_by=download_count`;
 
   try {
     const response = await fetch(url);
