@@ -1,33 +1,42 @@
 import type { YTSSearchResponse, YTSMovie, YTSTorrent } from '../../type';
 
-function buildMagnet(infoHash: string): string {
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+
+const buildMagnet = (infoHash: string): string => {
   return `magnet:?xt=urn:btih:${infoHash}&tr=udp://tracker.coppersurfer.tk:6969/announce&tr=udp://9.rarbg.to:2920/announce&tr=udp://tracker.opentrackr.org:1337&tr=udp://tracker.internetwarriors.net:1337/announce&tr=udp://tracker.leechers-paradise.org:6969/announce&tr=udp://tracker.pirateparty.gr:6969/announce&tr=udp://tracker.cyberia.is:6969/announce`;
-}
+};
 
 
-const base64EncodeImage = async (imageUrl: string): Promise<string> => {
-  try {
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.status}`);
+/**
+ * Fetches a cover and returns it as a data URI ("" if it can't be had).
+ * 5xx answers (e.g. Cloudflare's 525) are usually transient, so those are retried;
+ * 4xx answers won't improve, so they aren't.
+ */
+export const base64EncodeImage = async (
+  imageUrl: string,
+  { attempts = 3, delayMs = 250 }: { attempts?: number; delayMs?: number } = {},
+): Promise<string> => {
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      const response = await fetch(imageUrl);
+      if (response.ok) {
+        const bytes = new Uint8Array(await response.arrayBuffer());
+        const contentType = (response.headers.get('content-type') || 'image/jpeg').toLowerCase();
+        return `data:${contentType};base64,${Buffer.from(bytes).toString('base64')}`;
+      }
+      if (response.status < 500) {
+        console.error(`Cover fetch failed (${response.status}), not retrying: ${imageUrl}`);
+        return '';
+      }
+      console.warn(`Cover fetch ${response.status}, attempt ${i}/${attempts}: ${imageUrl}`);
+    } catch (error) {
+      console.warn(`Cover fetch error, attempt ${i}/${attempts}: ${imageUrl}`, error);
     }
-    
-    const arrayBuffer = await response.arrayBuffer();
-    const contentType = response.headers.get('content-type') || 'image/jpeg';
-    
-    const uint8Array = new Uint8Array(arrayBuffer);
-    let binary = '';
-    const length = uint8Array.length; 
-    for (let i = 0; i < length; i++) {
-      binary += String.fromCharCode(uint8Array[i]!);
-    }
-    const base64 = btoa(binary);
-    
-    return `data:${contentType.toLowerCase()};base64,${base64}`;
-  } catch (error) {
-    console.error('Error encoding image:', error);
-    return ''; 
+    if (i < attempts) await sleep(delayMs * i);
   }
+  console.error(`Giving up on cover: ${imageUrl}`);
+  return '';
 };
 
 

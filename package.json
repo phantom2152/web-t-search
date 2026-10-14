@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun run --hot src/index.ts",
+    "start": "bun build:web && bun run src/index.ts",
+    "dev" : "bun build:web && bun run --hot src/index.ts",
     "tunnel": "cloudflared tunnel --url http://localhost:3000",
     "build:web": "bun run build.ts"
   },

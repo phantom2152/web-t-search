@@ -1,32 +1,27 @@
 import { useState, type ReactNode } from "react";
 import { Header } from "./components/Header";
-import { Notice } from "./components/Notice";
 import { ProviderTabs } from "./components/ProviderTabs";
 import type { ProviderId } from "./lib/types";
 import { EztvScreen } from "./screens/EztvScreen";
 import { NyaaScreen } from "./screens/NyaaScreen";
 import { TpbScreen } from "./screens/TpbScreen";
+import { YtsScreen } from "./screens/YtsScreen";
 
 function renderScreen(provider: ProviderId, tabs: ReactNode) {
   switch (provider) {
-    case "nyaa":
-      return <NyaaScreen tabs={tabs} />;
+    case "yts":
+      return <YtsScreen tabs={tabs} />;
     case "tpb":
       return <TpbScreen tabs={tabs} />;
     case "eztv":
       return <EztvScreen tabs={tabs} />;
-    default:
-      return (
-        <>
-          {tabs}
-          <Notice kind="info">{provider} isn't ported to the new UI yet.</Notice>
-        </>
-      );
+    case "nyaa":
+      return <NyaaScreen tabs={tabs} />;
   }
 }
 
 export default function App() {
-  const [provider, setProvider] = useState<ProviderId>("nyaa");
+  const [provider, setProvider] = useState<ProviderId>("yts");
   const tabs = <ProviderTabs active={provider} onChange={setProvider} />;
 
   return (
