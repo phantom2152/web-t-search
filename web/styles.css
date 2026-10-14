@@ -1,20 +1,51 @@
 @import "tailwindcss";
 
-@theme {
-  --font-display: "DM Serif Display", serif;
-  --font-body: "DM Sans", sans-serif;
+@theme static {
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --color-ink: #0d0d0f;
-  --color-paper: #111114;
-  --color-panel: #18181c;
-  --color-border: #2a2a30;
-  --color-muted: #6b6b78;
-  --color-light: #e8e8ee;
+  --text-ui: 13px;
+  --text-ui--line-height: 1.5;
+
+  --color-ground: #0b0c0e;
+  --color-well: #0e0f12;
+  --color-panel: #121316;
+
+  --color-line: #23252b;
+  --color-line-soft: #1b1d22;
+  --color-edge: #2a2d34;
+  --color-edge-hi: #3a3d46;
+  --color-edge-hot: #5a5e69;
+
+  --color-fg: #e6e6ea;
+  --color-soft: #b4b6bd;
+  --color-muted: #7d8088;
+
   --color-accent: #e8c56d;
+  --color-good: #4ade80;
+  --color-warn: #facc15;
+  --color-bad: #f87171;
+  --color-info: #93c5fd;
+}
 
-  --animate-fade-up: fade-up 0.5s ease both;
-  @keyframes fade-up {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-ground text-fg font-mono text-ui;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-edge) var(--color-ground);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
   }
 }
