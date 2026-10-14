@@ -3,6 +3,7 @@ import { Header } from "./components/Header";
 import { Notice } from "./components/Notice";
 import { ProviderTabs } from "./components/ProviderTabs";
 import type { ProviderId } from "./lib/types";
+import { EztvScreen } from "./screens/EztvScreen";
 import { NyaaScreen } from "./screens/NyaaScreen";
 import { TpbScreen } from "./screens/TpbScreen";
 
@@ -12,6 +13,8 @@ function renderScreen(provider: ProviderId, tabs: ReactNode) {
       return <NyaaScreen tabs={tabs} />;
     case "tpb":
       return <TpbScreen tabs={tabs} />;
+    case "eztv":
+      return <EztvScreen tabs={tabs} />;
     default:
       return (
         <>
