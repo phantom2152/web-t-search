@@ -1,6 +1,6 @@
 {
   "bunVersion": "1.x",
-  "rewrites": [
-    { "source": "/", "destination": "/index.html" }
-  ]
+  "functions": {
+    "src/index.ts": { "includeFiles": "public/**" }
+  }
 }
