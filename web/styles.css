@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "DM Serif Display", serif;
+  --font-body: "DM Sans", sans-serif;
+
+  --color-ink: #0d0d0f;
+  --color-paper: #111114;
+  --color-panel: #18181c;
+  --color-border: #2a2a30;
+  --color-muted: #6b6b78;
+  --color-light: #e8e8ee;
+  --color-accent: #e8c56d;
+
+  --animate-fade-up: fade-up 0.5s ease both;
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}

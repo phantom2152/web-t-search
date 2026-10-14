@@ -5,10 +5,15 @@
   "private": true,
   "scripts": {
     "dev": "bun run --hot src/index.ts",
-    "tunnel": "cloudflared tunnel --url http://localhost:3000"
+    "tunnel": "cloudflared tunnel --url http://localhost:3000",
+    "build:web": "bun run build.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "bun-plugin-tailwind": "^0.1.2",
+    "tailwindcss": "^4.3.3"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -16,6 +21,8 @@
   "dependencies": {
     "axios": "^1.11.0",
     "cheerio": "^1.2.0",
-    "hono": "^4.9.2"
+    "hono": "^4.9.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
   }
 }
