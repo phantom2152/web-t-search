@@ -5,6 +5,7 @@ import { join } from "path";
 import YTSSearch from "./providers/yts";
 import TPBSearch from "./providers/piratebay";
 import EZTVSearch from "./providers/eztv";
+import NyaaSearch from "./providers/nyaa";
 import type { TPBCategories } from "./providers/piratebay";
 
 const app = new Hono();
@@ -52,6 +53,19 @@ app.get("/api/search/eztv", async (c) => {
   const page = parseInt(c.req.query("page") || "1", 10);
 
   const results = await EZTVSearch(imdbId, { limit, page });
+  return c.json(results);
+});
+
+app.get("/api/search/nyaa", async (c) => {
+  const query = c.req.query("query") || "";
+  if (!query) {
+    return c.json({ status: "error", error: "Missing query parameter" }, 400);
+  }
+
+  const orderBy = c.req.query("ord_by") === "date" ? "date" : "seeders";
+  const page = Math.max(1, parseInt(c.req.query("page") || "1", 10) || 1);
+
+  const results = await NyaaSearch(query, { orderBy, page });
   return c.json(results);
 });
 

@@ -7,7 +7,6 @@ function buildMagnet(infoHash: string): string {
 
 const base64EncodeImage = async (imageUrl: string): Promise<string> => {
   try {
-    console.log(`Fetching image from URL: ${imageUrl}`);
     const response = await fetch(imageUrl);
     if (!response.ok) {
       throw new Error(`Failed to fetch image: ${response.status}`);

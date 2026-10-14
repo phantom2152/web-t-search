@@ -62,6 +62,7 @@ export interface Torrent1337xSearchResult {
     length: number;
     page: number;
     data: NyaaTorrentResult[];
+    error?: string;
   }
   
   // YTS Types
