@@ -1,4 +1,5 @@
 import type { TPBTorrent, TPBSearchResult, TPBSearchResponse, TPBTorrentDetails } from "../../type";
+import { zenFetch } from "../utils/zenrows";
 
 export interface TPBCategories {
   All: string;
@@ -109,7 +110,7 @@ export async function search(
       throw new Error('Invalid category or query');
     }
 
-    const response = await fetch(url);
+    const response = await zenFetch(url);
     if (!response.ok) {
       throw new Error(`TPB API request failed: ${response.status}`);
     }
@@ -150,7 +151,7 @@ export async function getTorrentDetails(torrentId: string): Promise<TPBTorrentDe
 
   try {
     const url = `${BASE_URL}/t.php?id=${torrentId}`;
-    const response = await fetch(url);
+    const response = await zenFetch(url);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch torrent details: ${response.status}`);

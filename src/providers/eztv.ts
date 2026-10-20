@@ -1,4 +1,5 @@
 import type { EZTVTorrent, EZTVSearchResponse } from "../../type";
+import { zenFetch } from "../utils/zenrows";
 
 export interface EZTVSearchOptions {
   limit?: number;
@@ -81,7 +82,7 @@ export async function search(
 
   try {
     const url = `${BASE_URL}/get-torrents?imdb_id=${numericId}&limit=${limit}&page=${page}`;
-    const response = await fetch(url);
+    const response = await zenFetch(url);
 
     if (!response.ok) {
       throw new Error(`EZTV API request failed: ${response.status}`);
